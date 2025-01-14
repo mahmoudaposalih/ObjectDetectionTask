@@ -1,5 +1,6 @@
 import 'package:farouk/utilities/constants/app_colors.dart';
 import 'package:farouk/utilities/constants/app_icons.dart';
+import 'package:farouk/utilities/constants/app_strings.dart';
 import 'package:farouk/utilities/widgets/main_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -17,7 +18,7 @@ class NoData extends StatelessWidget {
         children: [
           SvgPicture.asset(AppIcons.noData),
           MainText(
-            text: 'No data available',
+            text: AppStrings.noData,
             fontSize: 18.sp,
             color: AppColors.grey7,
           ),

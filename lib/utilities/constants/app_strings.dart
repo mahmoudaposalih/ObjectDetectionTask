@@ -20,5 +20,5 @@ class AppStrings {
   static const detection = 'Detection';
   static const getStarted = 'Get Started';
   static const loading = 'Loading...';
-
+  static const noData = 'No data available';
 }
