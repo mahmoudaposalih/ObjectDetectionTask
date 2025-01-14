@@ -15,16 +15,16 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: AppColors.grey9),
+      decoration: BoxDecoration(color: AppColors.grey5),
       padding:
-          EdgeInsets.only(top: 24.h, left: 24.w, right: 24.w, bottom: 24.h),
+          EdgeInsets.only(top: 32.h, left: 24.w, right: 24.w, bottom: 24.h),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           MainText(
             text: AppStrings.detection,
             fontWeight: FontWeight.w600,
-            fontSize: 18.sp,
+            fontSize: 20.sp,
+            color: AppColors.white,
           ),
           SizedBox(height: 8.h),
           CustomTextField(

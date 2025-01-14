@@ -25,17 +25,23 @@ class StartButton extends StatelessWidget {
               arguments: controller.selectedObject.value,
             );
             controller.searchController.clear();
-            controller.selectedObject.value == '';
+            controller.selectedObject.value = '';
           }
         },
-        label: MainText(
-          text: AppStrings.getStarted,
-          color: AppColors.white,
-          fontWeight: FontWeight.w600,
-        ),
-        icon: Icon(
-          Icons.arrow_forward,
-          color: AppColors.white,
+        label: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            MainText(
+              text: AppStrings.getStarted,
+              color: AppColors.white,
+              fontWeight: FontWeight.w600,
+            ),
+            SizedBox(width: 8),
+            Icon(
+              Icons.arrow_forward,
+              color: AppColors.white,
+            ),
+          ],
         ),
         backgroundColor: controller.selectedObject.value.isEmpty
             ? AppColors.grey7

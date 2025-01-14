@@ -33,7 +33,7 @@ class ObjectsList extends StatelessWidget {
                       margin:
                           EdgeInsets.symmetric(horizontal: 24.w, vertical: 4.h),
                       padding:
-                          EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
+                          EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                       decoration: BoxDecoration(
                         color: AppColors.white,
                         borderRadius: AppStyles.borderRadius8,
@@ -44,20 +44,10 @@ class ObjectsList extends StatelessWidget {
                               : AppColors.grey9,
                         ),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          MainText(
-                            text: controller.filteredObjects[index],
-                            color: AppColors.grey1,
-                            fontSize: 16.sp,
-                          ),
-                          Icon(
-                            Icons.arrow_forward_ios,
-                            color: AppColors.grey7,
-                            size: 20.r,
-                          ),
-                        ],
+                      child: MainText(
+                        text: controller.filteredObjects[index],
+                        color: AppColors.grey1,
+                        fontSize: 16.sp,
                       ),
                     ),
                   ));
