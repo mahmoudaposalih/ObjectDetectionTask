@@ -1,11 +1,10 @@
-  
 import 'package:farouk/utilities/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
-class CustomTransparentInkwell extends StatelessWidget {
+class TransparentInkwell extends StatelessWidget {
   final Function() onTap;
   final Widget child;
-  const CustomTransparentInkwell({
+  const TransparentInkwell({
     super.key,
     required this.onTap,
     required this.child,

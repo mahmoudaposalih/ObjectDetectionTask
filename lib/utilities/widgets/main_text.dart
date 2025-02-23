@@ -1,7 +1,6 @@
 import 'package:farouk/utilities/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 
 class MainText extends StatelessWidget {
   final String text;
@@ -36,7 +35,7 @@ class MainText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      text.tr,
+      text,
       maxLines: maxLines,
       overflow: overflow,
       textAlign: textAlign,

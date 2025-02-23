@@ -1,59 +1,53 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
-import 'package:farouk/modules/details/binding/details_binding.dart';
 import 'package:farouk/modules/details/view/details_view.dart';
 import 'package:farouk/utilities/constants/app_strings.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:tflite/tflite.dart';
+import 'package:collection/collection.dart';
 
-class ObjectDetectionController extends GetxController {
-  RxDouble currentZoomLevel = 1.0.obs;
-  RxDouble minAvailableZoom = 1.0.obs;
-  RxDouble maxAvailableZoom = 1.0.obs;
-  RxDouble minAvailableExposureOffset = 1.0.obs;
-  RxDouble maxAvailableExposureOffset = 1.0.obs;
-  RxDouble currentExposureOffset = 1.0.obs;
-  Rx<bool> isDetecting = false.obs;
-  Rx<bool> isDisposing = false.obs;
-  RxInt countdown = 3.obs;
-  Rx<String> statusMessage = AppStrings.initializing.obs;
+class CameraObjectDetectionProvider extends ChangeNotifier {
+  double currentZoomLevel = 1.0;
+  double minAvailableZoom = 1.0;
+  double maxAvailableZoom = 1.0;
+  double minAvailableExposureOffset = 1.0;
+  double maxAvailableExposureOffset = 1.0;
+  double currentExposureOffset = 1.0;
+
+  bool isDetecting = false;
+  bool isDisposing = false;
+  int countdown = 3;
+  String statusMessage = AppStrings.initializing;
+
   static List<CameraDescription> cameras = [];
   CameraController? cameraController;
-  var passedTitle = Get.arguments;
-  RxBool isCameraInitialized = false.obs;
-
-  @override
-  void onInit() {
-    super.onInit();
-    _loadTfliteModel();
-    initializeCamera();
-  }
+  bool isCameraInitialized = false;
 
   void setStatusMessage(String message) {
-    statusMessage.value = message;
+    statusMessage = message;
+    notifyListeners();
   }
 
-  Future<void> _loadTfliteModel() async {
+  Future<void> loadTfliteModel() async {
     try {
       setStatusMessage('Loading model...');
       await Tflite.loadModel(
         model: "assets/models/model.tflite",
         labels: "assets/models/model.txt",
       );
-
       setStatusMessage('Model loaded successfully.');
+      debugPrint("---------loadTfliteModel");
     } catch (e) {
-      setStatusMessage('Camera Error');
+      setStatusMessage('Model loading error: $e');
+      debugPrint("---------loadTfliteModel2");
     }
   }
 
-  Future<void> initializeCamera() async {
+  Future<void> initializeCamera(BuildContext context, String objectName) async {
     try {
-      if (cameras.isEmpty) {
-        cameras = await availableCameras();
-      }
+      cameras = cameras.isEmpty ? await availableCameras() : cameras;
       final camera = cameras.first;
 
       setStatusMessage('Initializing camera...');
@@ -68,29 +62,34 @@ class ObjectDetectionController extends GetxController {
 
       await cameraController!.initialize();
 
-      minAvailableZoom.value = await cameraController!.getMinZoomLevel();
-      maxAvailableZoom.value = await cameraController!.getMaxZoomLevel();
-      minAvailableExposureOffset.value =
+      minAvailableZoom = await cameraController!.getMinZoomLevel();
+      maxAvailableZoom = await cameraController!.getMaxZoomLevel();
+      minAvailableExposureOffset =
           await cameraController!.getMinExposureOffset();
-      maxAvailableExposureOffset.value =
+      maxAvailableExposureOffset =
           await cameraController!.getMaxExposureOffset();
 
       setStatusMessage(AppStrings.camReady);
+      debugPrint("------------objectName-----------$objectName");
+      cameraController!.startImageStream(
+          (image) => processCameraImage(image, context, objectName));
 
-      cameraController!.startImageStream(processCameraImage);
+      isCameraInitialized = true;
+      notifyListeners();
     } catch (e) {
-      setStatusMessage(AppStrings.camError);
+      setStatusMessage('Camera initialization error: $e');
     }
-    isCameraInitialized.value = true;
   }
 
-  Future<void> processCameraImage(CameraImage image) async {
-    if (isDetecting.value || isDisposing.value) return;
+  Future<void> processCameraImage(
+      CameraImage image, BuildContext context, String objectName) async {
+    debugPrint("------processCameraImage------$isDisposing-----$isDetecting-");
+    if (isDetecting || isDisposing) return;
 
-    isDetecting.value = true;
+    isDetecting = true;
 
     try {
-      var recognitions = await Tflite.detectObjectOnFrame(
+      final recognitions = await Tflite.detectObjectOnFrame(
         model: "YOLO",
         bytesList: image.planes.map((plane) => plane.bytes).toList(),
         imageHeight: image.height,
@@ -101,47 +100,84 @@ class ObjectDetectionController extends GetxController {
         numResultsPerClass: 1,
       );
 
-      if (recognitions != null && recognitions.isNotEmpty) {
-        var found = recognitions.firstWhere(
-          (r) =>
-              r["detectedClass"] == passedTitle &&
-              (r["confidenceInClass"] ?? 0) >= 0.5,
-          orElse: () => null,
+      final detectedObject = recognitions?.firstWhereOrNull(
+        (r) {
+          debugPrint("------------------------------");
+          debugPrint("-----------$objectName-------------------");
+          debugPrint(
+              "-----------${r["detectedClass"].toString().trim()}-------------------");
+          return r["detectedClass"].toString().trim() == objectName.trim() &&
+              (r["confidenceInClass"] ?? 0) >= 0.5;
+        },
+      );
+
+      if (detectedObject != null) {
+        setStatusMessage('${AppStrings.objectDetected} $objectName!');
+        final picture = await cameraController?.takePicture();
+
+        await countdownTimer();
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailsScreen(
+              title: objectName,
+              dateTime: DateTime.now().toString(),
+              file: picture,
+              confidence: detectedObject["confidenceInClass"],
+            ),
+          ),
         );
-        if (found != null) {
-          setStatusMessage('${AppStrings.objectDetected} $passedTitle!');
-          var capturedPicture = await cameraController?.takePicture();
 
-          countdown.value = 3;
-          await Future.delayed(Duration(seconds: 1), () => countdown.value = 2);
-          await Future.delayed(Duration(seconds: 1), () => countdown.value = 1);
-          await Future.delayed(Duration(seconds: 1), () => countdown.value = 0);
-
-          Get.off(() => DetailsView(), binding: DetailsBinding(), arguments: {
-            'title': passedTitle,
-            'dateTime': DateTime.now().toString(),
-            'imagePath': capturedPicture,
-            'confidence': found["confidenceInClass"]
-          });
-
-          await stopAndDisposeCamera();
-
-          return;
-        } else {
-          setStatusMessage(AppStrings.noMatching);
-        }
+        await stopAndDisposeCamera();
       } else {
-        setStatusMessage(AppStrings.noObjectDetected);
+        setStatusMessage(AppStrings.noMatching);
       }
     } catch (e) {
-      setStatusMessage(AppStrings.initializing);
+      setStatusMessage('Error processing image: $e');
     } finally {
-      isDetecting.value = false;
+      isDetecting = false;
+    }
+  }
+
+  Future<void> countdownTimer() async {
+    for (int i = 3; i > 0; i--) {
+      countdown = i;
+      notifyListeners();
+      await Future.delayed(const Duration(seconds: 1));
+    }
+    countdown = 0;
+    isCameraInitialized = false;
+
+    notifyListeners();
+  }
+
+  Future<void> onCameraZoomChange(double zoom) async {
+    try {
+      await cameraController?.setZoomLevel(zoom);
+      currentZoomLevel = zoom;
+      notifyListeners();
+    } catch (e) {
+      setStatusMessage(AppStrings.zoomError);
+    }
+  }
+
+  Future<void> onCameraExposureChange(double exposure) async {
+    try {
+      await cameraController?.setExposureOffset(exposure);
+      currentExposureOffset = exposure;
+      notifyListeners();
+    } catch (e) {
+      setStatusMessage(AppStrings.exposureError);
     }
   }
 
   Future<void> stopAndDisposeCamera() async {
-    isDisposing.value = true;
+    if (isDisposing) return;
+    isDisposing = true;
+
+    final completer = Completer<void>();
+
     try {
       if (cameraController != null) {
         await cameraController!.stopImageStream();
@@ -149,19 +185,27 @@ class ObjectDetectionController extends GetxController {
         await cameraController!.dispose();
         cameraController = null;
       }
-    } catch (e) {
-      debugPrint("Error disposing camera: $e");
-    }
-    try {
       await Tflite.close();
     } catch (e) {
-      debugPrint("Error closing TFLite: $e");
+      debugPrint("Error disposing resources: $e");
+    } finally {
+      completer.complete();
     }
+
+    await completer.future;
+    notifyListeners();
   }
 
   @override
-  void onClose() {
-    super.onClose();
+  void dispose() {
     stopAndDisposeCamera();
+    super.dispose();
+  }
+
+  void reset() {
+    countdown = 3;
+    isDisposing = false;
+    isDetecting = false;
+    notifyListeners();
   }
 }

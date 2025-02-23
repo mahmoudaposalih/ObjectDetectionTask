@@ -1,34 +1,31 @@
 import 'package:farouk/modules/camera/controller/camera_controller.dart';
-import 'package:farouk/utilities/constants/app_colors.dart';
-import 'package:farouk/utilities/constants/app_strings.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 
-class CameraZoomSlider extends StatelessWidget {
-  const CameraZoomSlider({super.key});
+import 'package:farouk/utilities/constants/app_colors.dart';
+
+class ZoomControlSlider extends StatelessWidget {
+  const ZoomControlSlider({super.key});
 
   @override
   Widget build(BuildContext context) {
-    ObjectDetectionController controller = Get.find();
+    return Selector<CameraObjectDetectionProvider, double>(
+      selector: (_, provider) => provider.currentZoomLevel,
+      builder: (context, currentZoom, _) {
+        final provider = context.read<CameraObjectDetectionProvider>();
 
-    return Obx(
-      () => Slider(
-        thumbColor: AppColors.grey5,
-        activeColor: AppColors.grey3,
-        value: controller.currentZoomLevel.value,
-        min: controller.minAvailableZoom.value,
-        max: controller.maxAvailableZoom.value,
-        divisions: 100,
-        label: "${controller.currentZoomLevel.value.toStringAsFixed(1)}x",
-        onChanged: (value) async {
-          try {
-            await controller.cameraController?.setZoomLevel(value);
-            controller.currentZoomLevel.value = value;
-          } catch (e) {
-            controller.setStatusMessage(AppStrings.zoomError);
-          }
-        },
-      ),
+        return Slider(
+          thumbColor: AppColors.grey5,
+          activeColor: AppColors.grey3,
+          value: currentZoom.clamp(
+              provider.minAvailableZoom, provider.maxAvailableZoom),
+          min: provider.minAvailableZoom,
+          max: provider.maxAvailableZoom,
+          divisions: 100,
+          label: "${currentZoom.toStringAsFixed(1)}x",
+          onChanged: provider.onCameraZoomChange,
+        );
+      },
     );
   }
 }

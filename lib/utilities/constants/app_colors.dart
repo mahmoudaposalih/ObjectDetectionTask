@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-
-final ThemeData theme = Theme.of(Get.context!);
 
 class AppColors {
   static const Color black = Color(0xff000000);

@@ -2,7 +2,6 @@ import 'package:farouk/utilities/constants/app_colors.dart';
 import 'package:farouk/utilities/constants/app_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 
 class CustomTextField extends StatefulWidget {
   final TextEditingController controller;
@@ -44,7 +43,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       scrollPadding: EdgeInsets.zero,
       controller: widget.controller,
       validator: widget.validator,
-      style: Get.textTheme.titleSmall?.copyWith(
+      style: TextStyle(
         fontWeight: FontWeight.w400,
         fontSize: 14.spMin,
         color: widget.textColor ?? AppColors.grey1,
@@ -52,11 +51,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
       decoration: InputDecoration(
         filled: true,
         fillColor: AppColors.white,
-        hintStyle: Get.textTheme.bodyLarge?.copyWith(
+        hintStyle: TextStyle(
           color: AppColors.grey6,
           fontSize: 12.sp,
         ),
-        hintText: widget.hintText?.tr,
+        hintText: widget.hintText ?? "",
         suffixIcon: Padding(
           padding: const EdgeInsets.all(16.0),
           child: widget.suffixIcon,
@@ -68,7 +67,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           ),
         ),
         labelStyle: widget.hintStyle ??
-            Get.textTheme.bodyLarge?.copyWith(
+            TextStyle(
               color: AppColors.grey6,
               fontSize: 14,
             ),
