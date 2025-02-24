@@ -27,11 +27,11 @@ class ObjectInfoCard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: AppColors.grey6,
+        color: AppColors.grey9,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: AppColors.grey6,
+            color: AppColors.grey9,
             spreadRadius: 2,
             blurRadius: 4,
             offset: Offset(0, 2),
@@ -44,16 +44,31 @@ class ObjectInfoCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(12.r),
             child: Image.file(
               File(file!.path),
-              height: 300.h,
+              height: 200.h,
+              width: double.infinity,
               fit: BoxFit.fill,
             ),
           ),
           SizedBox(height: 12.h),
-          _buildInfoRow(AppStrings.recognizedObject, title),
-          _buildInfoRow(AppStrings.confidence,
-              '${(confidence * 100).toStringAsFixed(2)}%'),
-          _buildInfoRow(AppStrings.date, dateTime.toString().substring(0, 10)),
-          _buildInfoRow(AppStrings.time, dateTime.toString().substring(11, 19)),
+          Row(
+            children: [
+              Expanded(child: _buildInfoRow(AppStrings.recognizedObject, title)),
+              SizedBox(width: 5,),
+              Expanded(
+                child: _buildInfoRow(AppStrings.confidence,
+                    '${(confidence * 100).toStringAsFixed(2)}%'),
+              ),
+            ],
+          ),
+          
+          Row(
+            children: [
+              Expanded(child: _buildInfoRow(AppStrings.date, dateTime.toString().substring(0, 10))),
+              SizedBox(width: 5,),
+              Expanded(child: _buildInfoRow(AppStrings.time, dateTime.toString().substring(11, 19))),
+            ],
+          ),
+          
         ],
       ),
     );
@@ -62,10 +77,10 @@ class ObjectInfoCard extends StatelessWidget {
   Widget _buildInfoRow(String label, String value) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.h),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          MainText(text: label, fontSize: 16.sp, fontWeight: FontWeight.w500),
+          MainText(text: label, fontSize: 16.sp, fontWeight: FontWeight.w500 , color: AppColors.blueDark,),
           MainText(text: value, fontSize: 16.sp, fontWeight: FontWeight.w400),
         ],
       ),

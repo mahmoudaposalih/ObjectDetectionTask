@@ -18,7 +18,7 @@ class HeaderSection extends StatelessWidget {
       margin: EdgeInsets.symmetric(vertical: 10.h),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12.r),
-        color: AppColors.grey7,
+        color: AppColors.blueDark,
         boxShadow: [
           BoxShadow(
             color: AppColors.grey5,

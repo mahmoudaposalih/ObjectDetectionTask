@@ -53,7 +53,7 @@ class DetailsScreen extends StatelessWidget {
                   },
                   text: AppStrings.startOver,
                   textColor: AppColors.white,
-                  color: AppColors.grey0,
+                  //color: AppColors.blueDark,
                 ),
               ],
             ),

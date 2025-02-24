@@ -23,7 +23,7 @@ class ObjectDetectionButton extends StatelessWidget {
               ? () => _navigateToCamera(context, selectedObject)
               : null,
           label: _buildButtonLabel(),
-          backgroundColor: isButtonActive ? AppColors.black : AppColors.grey7,
+          backgroundColor: isButtonActive ? AppColors.blueDark : AppColors.grey5,
         );
       },
     );

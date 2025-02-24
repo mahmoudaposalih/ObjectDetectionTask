@@ -20,7 +20,7 @@ class NoData extends StatelessWidget {
           MainText(
             text: AppStrings.noData,
             fontSize: 18.sp,
-            color: AppColors.grey7,
+            color: AppColors.blueDark,
           ),
         ],
       ),

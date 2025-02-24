@@ -19,7 +19,7 @@ class ObjectDetectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(color: AppColors.grey5),
+      decoration: BoxDecoration(color: AppColors.blueDark),
       padding: _headerPadding.copyWith(top: 32.h),
       child: Column(
         children: [
